@@ -1,0 +1,51 @@
+* {{raw-name}}
+
+{{description}}
+
+** Usage
+
+Run locally with:
+
+#+begin_src shell
+clj -m {{top/ns}}.{{main/ns}}
+#+end_src
+
+Modify [[file:resources/config.edn][resources/config.edn]] to change default environment variables, or override with [[https://direnv.net/][direnv]].
+
+Invoke a library API function from the command-line:
+
+#+begin_src shell
+$ clojure -X {{top/ns}}.{{main/ns}}/foo :a 1 :b '"two"'
+{:a 1, :b "two"} "Hello, World!"
+#+end_src
+
+Run the project's tests (they'll fail until you edit them):
+
+#+begin_src shell
+$ clojure -T:build test
+#+end_src
+
+Run the project's CI pipeline and build a JAR (this will fail until you edit the tests to pass):
+
+#+begin_src shell
+$ clojure -T:build ci
+#+end_src
+
+This will produce an updated =pom.xml= file with synchronized dependencies inside the =META-INF=
+directory inside =target/classes= and the JAR in =target=. You can update the version (and SCM tag)
+information in generated =pom.xml= by updating =build.clj=.
+
+Install it locally (requires the =ci= task be run first):
+
+#+begin_src shell
+$ clojure -T:build install
+#+end_src
+
+Deploy it to Clojars -- needs =CLOJARS_USERNAME= and =CLOJARS_PASSWORD= environment
+variables (requires the =ci= task be run first):
+
+#+begin_src shell
+$ clojure -T:build deploy
+#+end_src
+
+Your library will be deployed to {{group/id}}/{{artifact/id}} on clojars.org by default.

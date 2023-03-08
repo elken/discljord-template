@@ -1,0 +1,66 @@
+(ns {{top/ns}}.{{main/ns}}
+  (:require
+   [next.jdbc :as jdbc]
+   [honey.sql :as sql]
+   [chime.core            :as chime]
+   [chime.core-async      :refer [chime-ch]]
+   [clojure.core.async    :as a]
+   [clojure.tools.logging :as log]
+   [cprop.core            :refer [load-config]]
+   [discljord.connections :as c]
+   [discljord.events :as e]
+   [discljord.messaging   :as m])
+  (:gen-class))
+
+(defonce state (atom nil))
+
+(defonce state-ds
+  (jdbc/get-datasource
+   {:dbtype "sqlite"
+    :dbname "state"}))
+
+(defn handle-ready
+  [_event-type _event-data]
+  (log/info "Connection ready"))
+
+(def ^:private handlers
+  {:ready          [#'handle-ready]})
+
+(defn -main [& args]
+  (let [{:keys [token guild-id channel-id]} (load-config)
+        chimes (chime-ch (chime/periodic-seq (java.time.Instant/now) (java.time.Duration/ofSeconds 15))
+                         {:ch (a/chan (a/sliding-buffer 1))})]
+
+    (log/info "Starting bot...")
+    (a/go-loop []
+      (when (and (a/<! chimes)
+                 (not (nil? @state)))
+        (log/info "Updating"))
+      (recur))
+
+    (future
+      (when (nil? @state)
+        (let [event-channel (a/chan 100)
+              bot-connection (c/connect-bot! token event-channel :intents #{:guilds :guild-messages})
+              messaging-connection (m/start-connection! token)]
+          (reset! state {:connection bot-connection
+                         :event event-channel
+                         :messaging messaging-connection
+                         :guild guild-id
+                         :channel channel-id})
+          (try
+            (log/info "Setting up message handlers")
+            (jdbc/execute!
+             state-ds
+             (sql/format
+              {:create-table [:state :if-not-exists]
+               :with-columns [[:id :int :primary :key]]}))
+
+            (e/message-pump! event-channel (partial e/dispatch-handlers #'handlers))
+
+            (finally
+              (log/info "Exiting")
+              (m/stop-connection! messaging-connection)
+              (c/disconnect-bot!  bot-connection)
+              (map a/close! [event-channel])
+              (reset! state nil))))))))

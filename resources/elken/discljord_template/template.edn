@@ -1,0 +1,13 @@
+{:description "A template for creating [[https://github.com/discljord/discljord][discljord]] projects with ease."
+ ;; this does not transform the data but does print a message:
+ ;; :data-fn elken.discljord-template/data-fn
+ ;; this does not transform the EDN but does print a message:
+ ;; :template-fn elken.discljord-template/template-fn
+ :transform
+ [["build" ""
+   {"build.tmpl" "build.clj"
+    "deps.tmpl"  "deps.edn"}]
+  ["src" "src/{{top/file}}"
+   {"main.tmpl" "{{main/file}}.clj"}]
+  ["test" "test/{{top/file}}"
+   {"main_test.tmpl" "{{main/file}}_test.clj"}]]}

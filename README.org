@@ -1,0 +1,25 @@
+#+title: discljord-template
+
+A template for creating [[https://github.com/discljord/discljord][discljord]] projects with ease.
+
+* Usage
+To use the template, install the deps-new tool:
+
+#+begin_src shell
+clojure -Ttools install io.github.seancorfield/deps-new '{:git/tag "v0.5.0"}' :as new
+#+end_src
+
+Then create a project using the elken/discljord-template template, substituting "myusername" for your Github username and "my-cool-bot" with the project name:
+
+#+begin_src shell :dir /tmp/deps
+clojure -Sdeps '{:deps {io.github.elken/discljord-template {:git/tag "v0.0.1" :git/sha "5701ddf"}}}' \
+-Tnew create \
+:template elken/discljord-template \
+:name myusername/my-cool-bot
+#+end_src
+
+* Template Keyword Options
+
+You can customize this template by supplying any of the following key-value pairs to the above command (See template.edn for default values):
+
+- =:description=: This string is inserted at the top of your generated project's README.md.
