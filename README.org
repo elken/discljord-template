@@ -12,7 +12,7 @@ clojure -Ttools install io.github.seancorfield/deps-new '{:git/tag "v0.5.0"}' :a
 Then create a project using the elken/discljord-template template, substituting "myusername" for your Github username and "my-cool-bot" with the project name:
 
 #+begin_src shell :dir /tmp/deps
-clojure -Sdeps '{:deps {io.github.elken/discljord-template {:git/tag "v0.0.1" :git/sha "5701ddf"}}}' \
+clojure -Sdeps '{:deps {io.github.elken/discljord-template {:git/tag "v0.0.1" :git/sha "5dbd2bc"}}}' \
 -Tnew create \
 :template elken/discljord-template \
 :name myusername/my-cool-bot
